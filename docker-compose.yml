@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  video-engine:
+    build: .
+    container_name: moti-engine
+    command: uvicorn server:app --host 0.0.0.0 --port 8000
+    ports:
+      - "${ENGINE_PORT}:8000"
+    volumes:
+      - ./storage:/app/storage
+      - ./users_data:/app/users_data
+      - ./music:/app/music
+      - ./template.html:/app/template.html
+      - ./server.py:/app/server.py
+    networks:
+      - app-network
+    environment:
+      - WORKERS_COUNT=2
+      - DATABASE_URL=postgresql://user:password@db:5432/moti_db
+      - N8N_WEBHOOK_URL=https://mdsaimon.qzz.io/n8n/webhook-test/dash
+    depends_on:
+      - db
+
+  dashboard:
+    build: .
+    container_name: moti-dashboard
+    command: streamlit run dashboard.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "${DASHBOARD_PORT}:8501"
+    volumes:
+      - ./storage:/app/storage
+      - ./users_data:/app/users_data
+      - ./music:/app/music
+      - ./dashboard.py:/app/dashboard.py
+    networks:
+      - app-network
+    environment:
+      - N8N_WEBHOOK_URL=https://mdsaimon.qzz.io/n8n/webhook-test/dash
+      - STORAGE_ROOT=/app/storage
+      - USERS_ROOT=/app/users_data
+      - MUSIC_DIR=/app/music
+      - DATABASE_URL=postgresql://user:password@db:5432/moti_db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: moti-db
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=moti_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    external: true

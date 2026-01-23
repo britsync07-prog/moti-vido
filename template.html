@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <style>
+        /* FORCE FULL SCREEN */
+        html, body {
+            width: 100%; height: 100%;
+            margin: 0; padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        #stage {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+        }
+
+        #bg-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; 
+            transform-origin: center center;
+            will-change: transform;
+            z-index: 1;
+        }
+
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.2) 100%);
+            z-index: 2;
+        }
+
+        #word-container {
+            position: absolute; bottom: 25%; left: 50%;
+            transform: translateX(-50%); width: 90%; text-align: center; z-index: 10;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .single-word {
+            font-size: 100px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #FFFF00;
+            -webkit-text-stroke: 4px black;
+            paint-order: stroke fill;
+            text-shadow: 0px 4px 15px rgba(0,0,0,0.9);
+            display: inline-block;
+            opacity: 0;
+            line-height: 1.1;
+        }
+
+        .pop-effect { animation: snapIn 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes snapIn {
+            0% { opacity: 0; transform: scale(1.6) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="stage">
+        <img id="bg-img" src="" />
+        <div id="overlay"></div>
+    </div>
+    <div id="word-container"><span id="current-word" class="single-word"></span></div>
+
+    <script>
+        let wordsData = [];
+        let lastWordIndex = -1;
+        
+        let imgStartTime = 0; 
+        let lastUrl = "";
+
+        // --- SETTINGS ---
+        // Base zoom: 1.25 (25% buffer). This allows us to move the image safely.
+        const BASE_SCALE = 1.25; 
+        
+        // SPEEDS: Different speeds for each axis make the motion look organic, not robotic.
+        const ZOOM_SPEED = 0.4;  // Slow breath
+        const X_SPEED = 0.5;     // Left/Right sway
+        const Y_SPEED = 0.3;     // Up/Down sway
+
+        function loadWords(data) { wordsData = data; }
+
+        function setBg(url) {
+            const img = document.getElementById('bg-img');
+            if (url === lastUrl) return;
+            
+            lastUrl = url;
+            img.src = url; 
+            img.dataset.newImage = "true";
+        }
+
+        function updateFrame(time) {
+            const img = document.getElementById('bg-img');
+            
+            if (img.dataset.newImage === "true") { 
+                imgStartTime = time; 
+                img.dataset.newImage = "false"; 
+            }
+            
+            // Time since image appeared
+            const t = time - imgStartTime;
+            
+            // --- COMBINED MOTION LOGIC ---
+            // We calculate ALL motions simultaneously.
+            
+            // 1. ZOOM: Breathes between 1.25 and 1.4
+            const zoomWave = Math.sin(t * ZOOM_SPEED); 
+            const currentScale = BASE_SCALE + (Math.abs(zoomWave) * 0.15);
+
+            // 2. PAN X: Sways Left/Right (-5% to +5%)
+            // Using Cosine here so it's out of sync with Zoom
+            const panX = Math.cos(t * X_SPEED) * 5; 
+
+            // 3. PAN Y: Sways Up/Down (-3% to +3%)
+            const panY = Math.sin(t * Y_SPEED) * 3; 
+
+            // APPLY ALL AT ONCE
+            // The image will now Zoom AND move Left/Right AND move Up/Down together.
+            img.style.transform = `scale(${currentScale}) translate(${panX}%, ${panY}%)`;
+
+            // --- TEXT LOGIC ---
+            const activeIdx = wordsData.findIndex(w => time >= w.start && time <= w.end);
+            const wordEl = document.getElementById('current-word');
+
+            if (activeIdx !== -1) {
+                if (activeIdx !== lastWordIndex) {
+                    wordEl.innerText = wordsData[activeIdx].word;
+                    wordEl.classList.remove('pop-effect');
+                    void wordEl.offsetWidth; 
+                    wordEl.classList.add('pop-effect');
+                    lastWordIndex = activeIdx;
+                }
+            } else {
+                if (lastWordIndex !== -1) { 
+                    wordEl.innerText = ""; 
+                    wordEl.classList.remove('pop-effect'); 
+                    lastWordIndex = -1; 
+                }
+            }
+        }
+    </script>
+</body>
+</html>
