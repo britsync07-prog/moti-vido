@@ -9,3 +9,4 @@ music/
 venv/
 .idea/
 .vscode/
+*.log
