@@ -87,6 +87,15 @@
 
         function loadWords(data) { wordsData = data; }
 
+        function setMode(mode) {
+            const wordEl = document.getElementById('current-word');
+            if (mode === 'horizontal') {
+                wordEl.style.fontSize = '60px';
+            } else {
+                wordEl.style.fontSize = '100px';
+            }
+        }
+
         function setBg(url) {
             const img = document.getElementById('bg-img');
             if (url === lastUrl) return;

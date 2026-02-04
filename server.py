@@ -146,6 +146,7 @@ class GenerateRequest(BaseModel):
     session_id: str
     audio_filename: str
     image_filenames: List[str]
+    video_mode: Optional[str] = "vertical"
 
 class MergeRequest(BaseModel):
     session_id: str
@@ -367,10 +368,11 @@ async def list_files(session_id: str):
     return {"status": "success", "storage": storage_files, "music": music_files}
 
 # --- PARALLEL RENDER LOGIC (No Music Here) ---
-async def render_chunk(browser, chunk_id, start_frame, end_frame, word_data, image_paths, total_frames, frames_dir):
-    page = await browser.new_page(viewport={"width": 1080, "height": 1920}, device_scale_factor=1)
+async def render_chunk(browser, chunk_id, start_frame, end_frame, word_data, image_paths, total_frames, frames_dir, width, height, mode):
+    page = await browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=1)
     await page.goto(TEMPLATE_PATH)
     await page.evaluate(f"loadWords({json.dumps(word_data)})")
+    await page.evaluate(f"setMode('{mode}')")
 
     num_images = len(image_paths)
     frames_per_image = total_frames / num_images 
@@ -392,7 +394,7 @@ async def render_chunk(browser, chunk_id, start_frame, end_frame, word_data, ima
         )
     await page.close()
 
-async def render_logic(audio_path, image_paths, output_path, unique_id, session_dir):
+async def render_logic(audio_path, image_paths, output_path, unique_id, session_dir, mode="vertical"):
     # 1. TRANSCRIBE
     print("Transcribing audio...")
     segments, info = model.transcribe(audio_path, word_timestamps=True)
@@ -403,6 +405,11 @@ async def render_logic(audio_path, image_paths, output_path, unique_id, session_
     frames_dir = os.path.join(session_dir, f"{unique_id}_frames")
     os.makedirs(frames_dir, exist_ok=True)
     total_frames = int(duration * FPS)
+
+    if mode == "horizontal":
+        width, height = 1920, 1080
+    else:
+        width, height = 1080, 1920
     
     if len(image_paths) == 0: raise Exception("No images provided")
 
@@ -414,7 +421,7 @@ async def render_logic(audio_path, image_paths, output_path, unique_id, session_
             start = i * chunk_size
             end = min((i + 1) * chunk_size, total_frames)
             if start >= end: break
-            tasks.append(render_chunk(browser, i, start, end, word_data, image_paths, total_frames, frames_dir))
+            tasks.append(render_chunk(browser, i, start, end, word_data, image_paths, total_frames, frames_dir, width, height, mode))
         
         await asyncio.gather(*tasks)
         await browser.close()
@@ -463,7 +470,7 @@ async def create_segment(req: GenerateRequest):
         raise HTTPException(404, detail=f"Audio file not found")
 
     try:
-        await render_logic(audio_full_path, image_full_paths, output_full_path, unique_id, session_dir)
+        await render_logic(audio_full_path, image_full_paths, output_full_path, unique_id, session_dir, req.video_mode)
         return {"status": "segment_saved", "filename": output_filename, "session_id": req.session_id}
     except Exception as e:
         print(f"Error: {e}")
