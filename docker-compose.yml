@@ -18,7 +18,7 @@ services:
     environment:
       - WORKERS_COUNT=2
       - DATABASE_URL=postgresql://user:password@db:5432/moti_db
-      - N8N_WEBHOOK_URL=https://mdsaimon.qzz.io/n8n/webhook/dash
+      - N8N_WEBHOOK_URL=https://mayfairmarketing.online/webhook/dash
     depends_on:
       - db
 
@@ -36,7 +36,7 @@ services:
     networks:
       - app-network
     environment:
-      - N8N_WEBHOOK_URL=https://mdsaimon.qzz.io/n8n/webhook/dash
+      - N8N_WEBHOOK_URL=https://mayfairmarketing.online/webhook/dash
       - STORAGE_ROOT=/app/storage
       - USERS_ROOT=/app/users_data
       - MUSIC_DIR=/app/music
