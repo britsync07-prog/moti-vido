@@ -1,4 +1,10 @@
 # Moti-Vido
+<div align="center">
+
+![License](https://img.shields.io/github/license/britsync07-prog/moti-vido?style=flat-square&label=license&color=06b6d4) ![Language](https://img.shields.io/github/languages/top/britsync07-prog/moti-vido?style=flat-square&color=0ea5e9) ![Stars](https://img.shields.io/github/stars/britsync07-prog/moti-vido?style=flat-square&color=f59e0b) ![Last commit](https://img.shields.io/github/last-commit/britsync07-prog/moti-vido?style=flat-square&color=22c55e) ![Repo size](https://img.shields.io/github/repo-size/britsync07-prog/moti-vido?style=flat-square&color=94a3b8)
+
+</div>
+
 > A containerized motivational-video factory: transcribe narration, render word-synced captions frame-by-frame in a headless browser, mix background music with FFmpeg, and stream the results.
 
 Moti-Vido is a Python video-generation service built around FastAPI. It accepts an audio narration plus background images per session, produces word-timestamped transcripts with faster-whisper, rasterizes every video frame from an HTML template through Playwright/Chromium (vertical 1080x1920 or horizontal 1920x1080), assembles frames and audio with FFmpeg into numbered segments, concatenates them, optionally loops a music track underneath at low volume, and archives final videos per user. A Streamlit dashboard provides administration and scheduling, PostgreSQL persists users/posts/jobs, an n8n webhook drives calendar-based publishing, and a dedicated streaming server serves range requests for smooth playback.
@@ -150,4 +156,4 @@ Schedule posts via `POST /webhook/calendar`; stream results at `http://localhost
 - Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## License
-MIT License — Copyright (c) 2026 Musfiqur Rahman Saimon. See [LICENSE](./LICENSE).
+MIT License ï¿½ Copyright (c) 2026 Musfiqur Rahman Saimon. See [LICENSE](./LICENSE).
