@@ -157,3 +157,8 @@ Schedule posts via `POST /webhook/calendar`; stream results at `http://localhost
 
 ## License
 MIT License � Copyright (c) 2026 Musfiqur Rahman Saimon. See [LICENSE](./LICENSE).
+
+
+---
+Keywords: video factory, whisper captions, playwright, ffmpeg, automation, motivational videos
+
