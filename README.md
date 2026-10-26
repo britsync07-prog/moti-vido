@@ -155,5 +155,12 @@ Schedule posts via `POST /webhook/calendar`; stream results at `http://localhost
 - Webhook endpoints are unauthenticated; put them behind network controls or add shared-secret validation.
 - Released under the MIT License (see [LICENSE](./LICENSE)).
 
+## Contact
+
+- 📧 Email: [saimon@ascentraconsulting.co.uk](mailto:saimon@ascentraconsulting.co.uk)
+- 💼 LinkedIn: [Musfiqur Rahman Saimon](https://www.linkedin.com/in/musfiqur-rahman-saimon-a5994b3aa)
+- 🐙 GitHub: [@britsync07-prog](https://github.com/britsync07-prog)
+- 🌐 Portfolio: [brit-os.pages.dev](https://brit-os.pages.dev/)
+
 ## License
 MIT License � Copyright (c) 2026 Musfiqur Rahman Saimon. See [LICENSE](./LICENSE).
